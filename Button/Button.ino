@@ -1,24 +1,27 @@
 #include "Blink.h"
 #include "BinarySensor.h"
 
-Blink blinker = Blink(8, 5000, 250);
+Blink blinker = Blink(8, 500, 250);
+Blink fastBlinker = Blink(8, 100, 50);
 BinarySensor irSensor = BinarySensor(6);
 
 
 void setup() {
   Serial.begin(9600);
-  
+  Serial.println("Begin");
 }
 
 typedef unsigned long timer;
 typedef unsigned long timer_diff;
 timer currentMillis = 0;
 
-#define DEBOUND_DELAY 300
-#define END_OF_TRAIN_DELAY 1000
+#define DEBOUND_DELAY 100
+#define END_OF_TRAIN_DELAY 3000
 
 void loop(){
   blinker.run();
+  fastBlinker.run();
+
   irSensor.run();
 
   boolean has_changed = false;
@@ -45,15 +48,16 @@ void loop(){
  
         if (carCounter != 0)
         {
-          carCounter = 0;
           Serial.println("Train Passed");
-          blinker.blink(2);
+          blinker.blink(carCounter);
+          carCounter = 0;
+
         }
         if (has_changed && lastState == HIGH)
         {
-          carCounter = 1;
+          carCounter = 0;
           Serial.println("New Train!");
-          blinker.blink(3);
+          fastBlinker.blink(1);
         }
       }
       else if(has_changed)
@@ -63,6 +67,8 @@ void loop(){
           carCounter++;
           Serial.print("Car ");
           Serial.println(carCounter);
+          fastBlinker.blink(1);
+
         }
       }
   }
