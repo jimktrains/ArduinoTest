@@ -25,14 +25,12 @@ void Blink::run()
   {
     if (state == HIGH)
     {
-      Serial.println("Turning On");
       digitalWrite(ledPin, LOW);
       next_flip = ms + off_period;
       state = LOW;
     }
     else
     {
-      Serial.println("Turning Off");
       if (blinks > 0)
       {
         digitalWrite(ledPin, HIGH);
