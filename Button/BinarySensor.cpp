@@ -1,7 +1,7 @@
 #include "BinarySensor.h"
 
 BinarySensor::BinarySensor(int pinNumber):
-  pinNumber(pinNumber) 
+  pinNumber(pinNumber)
 {
   pinMode(pinNumber, INPUT);
   rfir = RingFIR<10, unsigned char>();

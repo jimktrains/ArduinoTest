@@ -1,8 +1,8 @@
 #ifndef __BINARYSENSOR_H__
 #define __BINARYSENSOR_H__
 
-#include "RingFIR.h"
 #include "Arduino.h"
+#include "RingFIR.h"
 
 class BinarySensor
 {

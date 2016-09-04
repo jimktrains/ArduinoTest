@@ -31,7 +31,7 @@ void loop(){
   
   timer_diff sinceLastChange = currentMillis - lastChange;
   
-  if (sinceLastChange  >= DEBOUND_DELAY)
+  if (sinceLastChange >= DEBOUND_DELAY)
   {
       if (approxReading != lastState)
       {
