@@ -3,7 +3,8 @@
 
 Blink blinker = Blink(8, 500, 250);
 Blink fastBlinker = Blink(8, 100, 50);
-BinarySensor irSensor = BinarySensor(6);
+unsigned int bounces[2][2] = {{10, 300}, {10, 3000}};
+BinarySensor<2> irSensor = BinarySensor<2>(6, bounces);
 
 
 void setup() {
@@ -21,55 +22,32 @@ timer currentMillis = 0;
 void loop(){
   blinker.run();
   fastBlinker.run();
-
   irSensor.run();
 
-  boolean has_changed = false;
-  currentMillis = millis();
-  static timer lastChange = 0;
-  static boolean lastState = false;
-  static unsigned int carCounter = 0;
+  static unsigned int carCount = 0;
    
-  int approxReading = irSensor.value();
-  
-  timer_diff sinceLastChange = currentMillis - lastChange;
-  
-  if (sinceLastChange >= DEBOUND_DELAY)
+  BinarySensorState carPresent = irSensor.value(0);
+  BinarySensorState trainPresent = irSensor.value(1);
+
+  if (carPresent == BinarySensorState::Rising)
   {
-      if (approxReading != lastState)
-      {
-        lastState = approxReading;
-        lastChange = currentMillis;
-        has_changed = true;
-      }
-      
-      if (sinceLastChange >= END_OF_TRAIN_DELAY)
-      {
- 
-        if (carCounter != 0)
-        {
-          Serial.println("Train Passed");
-          blinker.blink(carCounter);
-          carCounter = 0;
+    carCount++;
+    fastBlinker.blink(1);
+    if (carCount == 1)
+    {
+      Serial.println("New Train!");
+    }
+    else
+    {
+      blinker.blink(carCount);
+      Serial.print("Car: ");
+      Serial.println(carCount);
+    }
+  }
 
-        }
-        if (has_changed && lastState == HIGH)
-        {
-          carCounter = 0;
-          Serial.println("New Train!");
-          fastBlinker.blink(1);
-        }
-      }
-      else if(has_changed)
-      {
-        if (lastState == HIGH)
-        {
-          carCounter++;
-          Serial.print("Car ");
-          Serial.println(carCounter);
-          fastBlinker.blink(1);
-
-        }
-      }
+  if (trainPresent == BinarySensorState::Falling)
+  {
+    Serial.println("Train Passed :(");
+    carCount = 0;
   }
 }

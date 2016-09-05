@@ -2,8 +2,9 @@
 #define __BLINK__H__
 
 #include "Arduino.h"
+#include "Task.h"
 
-class Blink
+class Blink : public Task
 {
     unsigned int period;
     unsigned int duty_period;
