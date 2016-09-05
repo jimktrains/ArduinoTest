@@ -3,8 +3,14 @@
 
 #include "Arduino.h"
 #include "BinarySensor.h"
-#include "RingFIR.h"
-#include "Task.h"
+#include "BinaryRingFIR.h"
+
+/**
+ * Current State of the sensor.
+ * 
+ * Rising is the transition from Low to High.
+ * Falling is the transition from High to Low.
+ */
 
 enum BinarySensorState {
   Rising,
@@ -13,18 +19,57 @@ enum BinarySensorState {
   Low
 };
 
+/**
+ * Represents a sensor that will read from a binary pin.
+ * 
+ * The Sensor will transition following
+ * 
+ * Low -> Rising -> High -> Falling -> Low
+ * 
+ * Rising and Falling will appear for only a single cycle
+ * 
+ * This Sensor supports setting seperate debounce periods
+ * for rising and falling; i.e. the sensor must be stable
+ * in a state for a user-defined amount of amount of time
+ * before transitioning from Low to Rising or High to 
+ * Falling.
+ * 
+ * The sensor uses a simple Finite Impulse Response filter
+ * with a 10-reading history and uniform weights.
+ */
 template<unsigned char PHASES>
-class BinarySensor : public Task {
+class BinarySensor
+{
   unsigned int bounce[PHASES][2];
   BinarySensorState state[PHASES];
   unsigned long lastChange[PHASES];
-  RingFIR<10, unsigned char> rfir;
+  BinaryRingFIR<10> rfir;
   int sensorPin;
   
   public:
-
+    /**
+     * Constructs the sensor with the given pin and debounce 
+     * periods/phases.
+     * 
+     * ex:
+     * unsigned int bounces[2][2] = {{10, 300}, {10, 3000}};
+     * BinarySensor<2> irSensor = BinarySensor<2>(6, bounces);
+     * 
+     * Would create a sensor with 2 phases:
+     * 
+     * 10ms L->R and 300ms H->F
+     * 10ms L->R and 3s H->F
+     */
     BinarySensor(int sensorPin, unsigned int bounce[PHASES][2]);
+
+    /**
+     * Update the sensor values.
+     */
     void run();
+
+    /*
+     * Returns the sensor state for the given phase.
+     */
     BinarySensorState value(unsigned char phase);
 };
 
