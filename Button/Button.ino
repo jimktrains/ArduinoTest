@@ -12,13 +12,6 @@ void setup() {
   Serial.println("Begin");
 }
 
-typedef unsigned long timer;
-typedef unsigned long timer_diff;
-timer currentMillis = 0;
-
-#define DEBOUND_DELAY 100
-#define END_OF_TRAIN_DELAY 3000
-
 void loop(){
   blinker.run();
   fastBlinker.run();
@@ -39,7 +32,6 @@ void loop(){
     }
     else
     {
-      blinker.blink(carCount);
       Serial.print("Car: ");
       Serial.println(carCount);
     }
@@ -47,6 +39,7 @@ void loop(){
 
   if (trainPresent == BinarySensorState::Falling)
   {
+    blinker.blink(carCount);
     Serial.println("Train Passed :(");
     carCount = 0;
   }
